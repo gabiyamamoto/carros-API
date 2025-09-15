@@ -9,8 +9,6 @@ const getAllCarros = (req, res) => {
         resultado = resultado.filter(c => c.modelo.toLocaleLowerCase().includes(modelo.toLocaleLowerCase()));
     }
 
-
-    
     res.status(200).json({
         total: resultado.length,
         data: resultado
