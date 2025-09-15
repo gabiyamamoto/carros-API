@@ -68,7 +68,7 @@ const updateCarro = (req, res) => {
         });
     }
 
-    const carroExiste = carros.find(c => c.id === idParaEditar);
+    const carroExiste = carros.find(carro => carro.id === idParaEditar);
 
     if (!carroExiste) {
         return res.status(400).json({
@@ -77,15 +77,15 @@ const updateCarro = (req, res) => {
         });
     }
 
-    const carrosAtualizados = carros.map(c => c.id === id ? {
-        ...c,
+    const carrosAtualizados = carros.map(carro => carro.id === id ? {
+        ...carro,
         ...(nome && {nome}),
         ...(modelo && {modelo}),
         ...(ano && {ano}),
         ...(cor && {cor}),
         ...(qtdeVitorias && {qtdeVitorias})
     }
-        : c
+        : carro
     );
 
     carros.splice(0, carros.length, ...carrosAtualizados);
@@ -98,4 +98,33 @@ const updateCarro = (req, res) => {
     });
 }
 
-export { getAllCarros, getCarroById, createCarro, updateCarro }
+const deleteCarro = (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if(isNaN(id)) {
+        return res.status(404).json({
+            success: false,
+            message: "O id deve ser válido!"
+        });
+    }
+
+    const carroParaRemover = carros.find(c => c.id === id);
+
+    if (!carroParaRemover) {
+        return res.status(404).json({
+            success: false,
+            message: `Carro com o id ${id} não existe!`
+        });
+    }
+
+    const carrosFiltrados = carros.filter(carro => carro.id !== id);
+
+    carros.splice(0, carros.length, ...carrosFiltrados);
+
+    res.status(200).json({
+        sucess: true,
+        message: `O carro com o id ${id} foi removido`
+    });
+}
+
+export { getAllCarros, getCarroById, createCarro, updateCarro, deleteCarro }
