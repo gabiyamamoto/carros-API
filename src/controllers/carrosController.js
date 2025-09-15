@@ -2,8 +2,15 @@ import dados from "./../models/dados.js"
 const { carros } = dados;
 
 const getAllCarros = (req, res) => {
+    const { modelo } = req.query;
     let resultado = carros;
 
+    if (modelo) {
+        resultado = resultado.filter(c => c.modelo.toLocaleLowerCase().includes(modelo.toLocaleLowerCase()));
+    }
+
+
+    
     res.status(200).json({
         total: resultado.length,
         data: resultado
@@ -28,7 +35,7 @@ const getCarroById = (req, res) => {
 };
 
 const createCarro = (req, res) => {
-    const { nome, modelo, ano, cor, qtdeVitorias } = req.body;
+    const { nome, modelo, ano, cor, qtdeVitorias, equipe, velocidadeMaxima } = req.body;
     
     if (!nome || !ano || !qtdeVitorias) {
         return res.status(400).json({
@@ -43,7 +50,9 @@ const createCarro = (req, res) => {
         modelo: modelo,
         ano: ano,
         cor: cor,
-        qtdeVitorias: parseInt(qtdeVitorias)
+        qtdeVitorias: parseInt(qtdeVitorias),
+        equipe: equipe,
+        velocidadeMaxima: parseInt(velocidadeMaxima)
     }
 
     carros.push(novoCarro);
@@ -71,7 +80,7 @@ const updateCarro = (req, res) => {
     const carroExiste = carros.find(carro => carro.id === idParaEditar);
 
     if (!carroExiste) {
-        return res.status(400).json({
+        return res.status(404).json({
             success: false,
             message: `O carro com o id ${id} não existe`
         });
@@ -90,7 +99,7 @@ const updateCarro = (req, res) => {
 
     carros.splice(0, carros.length, ...carrosAtualizados);
 
-    const carroEditada = carros.find(c => c.id === idParaEditar);
+    const carroEditado = carros.find(c => c.id === idParaEditar);
     res.status(200).json({
         success: true,
         message: "Dados do carro atualizados com sucesso",
@@ -102,7 +111,7 @@ const deleteCarro = (req, res) => {
     const id = parseInt(req.params.id);
 
     if(isNaN(id)) {
-        return res.status(404).json({
+        return res.status(400).json({
             success: false,
             message: "O id deve ser válido!"
         });
