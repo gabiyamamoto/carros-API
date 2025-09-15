@@ -27,4 +27,75 @@ const getCarroById = (req, res) => {
     });
 };
 
-export { getAllCarros, getCarroById }
+const createCarro = (req, res) => {
+    const { nome, modelo, ano, cor, qtdeVitorias } = req.body;
+    
+    if (!nome || !ano || !qtdeVitorias) {
+        return res.status(400).json({
+            success: false,
+            message: "Nome, cor e quantidade de vitórias são obrigatórios!"
+        });
+    }
+
+    const novoCarro = {
+        id: carros.length + 1,
+        nome: nome,
+        modelo: modelo,
+        ano: ano,
+        cor: cor,
+        qtdeVitorias: parseInt(qtdeVitorias)
+    }
+
+    carros.push(novoCarro);
+
+    res.status(201).json({
+        success: true,
+        message: "Novo carro cadastrado com sucesso!",
+        data: novoCarro
+    });
+}
+
+const updateCarro = (req, res) => {
+    const id = parseInt(req.params.id);
+    const { nome, modelo, ano, cor, qtdeVitorias } = req.body;
+
+    const idParaEditar = id;
+
+    if (isNaN(idParaEditar)) {
+        return res.status(400).json({
+            success: false,
+            message: "O id deve ser um número válido!"
+        });
+    }
+
+    const carroExiste = carros.find(c => c.id === idParaEditar);
+
+    if (!carroExiste) {
+        return res.status(400).json({
+            success: false,
+            message: `O carro com o id ${id} não existe`
+        });
+    }
+
+    const carrosAtualizados = carros.map(c => c.id === id ? {
+        ...c,
+        ...(nome && {nome}),
+        ...(modelo && {modelo}),
+        ...(ano && {ano}),
+        ...(cor && {cor}),
+        ...(qtdeVitorias && {qtdeVitorias})
+    }
+        : c
+    );
+
+    carros.splice(0, carros.length, ...carrosAtualizados);
+
+    const carroEditada = carros.find(c => c.id === idParaEditar);
+    res.status(200).json({
+        success: true,
+        message: "Dados do carro atualizados com sucesso",
+        carro: carroExiste
+    });
+}
+
+export { getAllCarros, getCarroById, createCarro, updateCarro }
